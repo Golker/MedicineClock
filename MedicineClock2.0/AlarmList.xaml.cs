@@ -9,6 +9,7 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Microsoft.Phone.Scheduler;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace MedicineClock2._0
 {
@@ -26,10 +27,6 @@ namespace MedicineClock2._0
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (NavigationService.BackStack.ElementAt(0).Source.OriginalString.Contains("NewAlarm"))
-            {
-                NavigationService.RemoveBackEntry();
-            }
             selectedAlarmName = string.Empty;
             //Reset the ReminderListBox items when the page is navigated to.
             ResetItemsList();
@@ -86,6 +83,15 @@ namespace MedicineClock2._0
                 selectedAlarmName = (NotificationListBox.SelectedItem as Reminder).Name;
                 btnEdit.IsEnabled = true;
             }
+        }
+
+        protected override void OnBackKeyPress(CancelEventArgs e)
+        {
+            if (NavigationService.BackStack.ElementAt(0).Source.OriginalString.Contains("AlarmList") ||)
+            {
+                NavigationService.RemoveBackEntry();
+            }
+            base.OnBackKeyPress(e);
         }
     }
 }
