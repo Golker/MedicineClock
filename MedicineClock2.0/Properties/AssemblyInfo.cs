@@ -6,11 +6,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MedicineClock2._0")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("MedicineClock")]
+[assembly: AssemblyDescription("A reminder app to help you remember to take your medicines!")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MedicineClock2._0")]
+[assembly: AssemblyCompany("LowBudget Development")]
+[assembly: AssemblyProduct("MedicineClock")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
