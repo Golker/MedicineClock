@@ -8,8 +8,9 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Microsoft.Phone.Scheduler;
+using System.Windows.Media;
 
-namespace MedicineClock2._0
+namespace MedicineClock
 {
     public partial class NewAlarm : PhoneApplicationPage
     {
@@ -19,6 +20,16 @@ namespace MedicineClock2._0
         {
             InitializeComponent();
             btnSave.IsEnabled = false;
+
+            lpkrRecurrence.ItemsSource = SubItems();
+        }
+
+        private IEnumerable<string> SubItems()
+        {
+            yield return "Once";
+            yield return "Daily";
+            yield return "Weekly";
+            yield return "Monthly";
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -31,21 +42,21 @@ namespace MedicineClock2._0
                 {
                     Reminder reminder = (Reminder)ScheduledActionService.Find(alarmName);
 
-                    beginTimePicker.Value = (DateTime)reminder.BeginTime;
+                    beginTimePicker1.Value = (DateTime)reminder.BeginTime;
 
                     // 'Once' comes checked by default
                     RecurrenceInterval recurrence = reminder.RecurrenceType;
                     if (recurrence == RecurrenceInterval.Daily)
                     {
-                        rbtnDaily.IsChecked = true;
+                        lpkrRecurrence.SelectedItem = "Daily";
                     }
                     else if (recurrence == RecurrenceInterval.Weekly)
                     {
-                        rbtnWeekly.IsChecked = true;                        
+                        lpkrRecurrence.SelectedItem = "Weekly";
                     }
                     else if (recurrence == RecurrenceInterval.Monthly)
-                    {                        
-                        rbtnMonthly.IsChecked = true;
+                    {
+                        lpkrRecurrence.SelectedItem = "Monthly";
                     }
 
                     tbxName.Text = reminder.Title;
@@ -63,64 +74,97 @@ namespace MedicineClock2._0
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            if (alarmName != null && ScheduledActionService.Find(alarmName) != null)
+            for (int i = 0; i < spnlTimes.Children.Count + 1; i++)
             {
-                // if there's a name already, it means it's a pre-existent alarm being editted
-                // so we delete the old one first
-                ScheduledActionService.Remove(alarmName);
-            }
+                if (alarmName != null && ScheduledActionService.Find(alarmName) != null)
+                {
+                    // if there's a name already, it means it's a pre-existent alarm being editted
+                    // so we delete the old one first
+                    ScheduledActionService.Remove(alarmName);
+                }
 
-            // Generate a unique name for the new notification
-            alarmName = System.Guid.NewGuid().ToString();
+                // Generate a unique name for the new notification
+                alarmName = System.Guid.NewGuid().ToString();
 
-            DateTime date = (DateTime)beginDatePicker.Value;
-            DateTime time = (DateTime)beginTimePicker.Value;
-            DateTime beginTime = date + time.TimeOfDay;
+                DateTime date = (DateTime)beginDatePicker1.Value;
+                DateTime time = (DateTime)beginTimePicker1.Value;
+                DateTime beginTime = date + time.TimeOfDay;
 
-            RecurrenceInterval recurrence = RecurrenceInterval.None;
-            if (rbtnDaily.IsChecked == true)
-            {
-                recurrence = RecurrenceInterval.Daily;
-            }
-            else if (rbtnWeekly.IsChecked == true)
-            {
-                recurrence = RecurrenceInterval.Weekly;
-            }
-            else if (rbtnMonthly.IsChecked == true)
-            {
-                recurrence = RecurrenceInterval.Monthly;
-            }
+                RecurrenceInterval recurrence = RecurrenceInterval.None;
+                if ((lpkrRecurrence.SelectedItem as string) == "Daily")
+                {
+                    recurrence = RecurrenceInterval.Daily;
+                }
+                else if ((lpkrRecurrence.SelectedItem as string) == "Weekly")
+                {
+                    recurrence = RecurrenceInterval.Weekly;
+                }
+                else if ((lpkrRecurrence.SelectedItem as string) == "Monthly")
+                {
+                    recurrence = RecurrenceInterval.Monthly;
+                }
 
-            Reminder reminder = new Reminder(alarmName);
-            reminder.Title = tbxName.Text;
-            reminder.Content = tbxDetails.Text;
-            reminder.BeginTime = beginTime;
-            reminder.RecurrenceType = recurrence;
+                Reminder reminder = new Reminder(alarmName);
+                reminder.Title = tbxName.Text;
+                reminder.Content = tbxDetails.Text;
+                reminder.BeginTime = beginTime;
+                reminder.RecurrenceType = recurrence;
 
-            try
-            {
-                ScheduledActionService.Add(reminder);
+                try
+                {
+                    ScheduledActionService.Add(reminder);
 
-                MessageBoxResult result = MessageBox.Show("The alarm has been saved!");
-                NavigationService.Navigate(new Uri("/AlarmList.xaml", UriKind.Relative));
-            }
-            catch (Exception)
-            {
-                MessageBoxResult result = MessageBox.Show("The alarm could not be created, please check if the info is correct.\n" +
-                    "Tip: The start date and time can't be earlier than the current time.\n");
+                    MessageBoxResult result = MessageBox.Show("The alarm has been saved!");
+                    NavigationService.Navigate(new Uri("/AlarmList.xaml", UriKind.Relative));
+                }
+                catch (Exception)
+                {
+                    MessageBoxResult result = MessageBox.Show("The alarm could not be created, " +
+                        "please check if the info is correct.\nTip: The start date and time " +
+                        "can't be earlier than the current time.\n");
+                }
             }
         }
 
         private void tbxName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (tbxName.Text == string.Empty)
-            {
-                btnSave.IsEnabled = false;
-            }
-            else
-            {
-                btnSave.IsEnabled = true;
-            }
+            btnSave.IsEnabled = tbxName.Text == string.Empty ? false : true;
         }
-    }
+
+        private void btnAddTime_Click(object sender, RoutedEventArgs e)
+        {
+            StackPanel panel = new StackPanel();
+            panel.Orientation = System.Windows.Controls.Orientation.Horizontal;            
+
+            Button btnDelete = new Button();
+            btnDelete.Width = 60;
+            btnDelete.Content = "(X)";
+            btnDelete.BorderThickness = new Thickness(0);
+            Color currentAccentColorHex = (Color)Application.Current.Resources["PhoneAccentColor"];
+            btnDelete.BorderBrush = new SolidColorBrush(currentAccentColorHex);            
+            btnDelete.Padding = new Thickness(0);
+            btnDelete.Click += btnDeleteExtraTime_Click;
+
+            DatePicker dp = new DatePicker();
+            dp.Width = 176;
+            dp.HorizontalAlignment = HorizontalAlignment.Left;
+            dp.Value = DateTime.Today;
+
+            TimePicker tp = new TimePicker();
+            tp.Width = 153;
+            tp.HorizontalAlignment = HorizontalAlignment.Right;
+            tp.Value = DateTime.Now;
+
+            panel.Children.Add(btnDelete);
+            panel.Children.Add(dp);
+            panel.Children.Add(tp);
+
+            spnlTimes.Children.Add(panel);
+        }
+
+        private void btnDeleteExtraTime_Click(object sender, RoutedEventArgs e)
+        {
+            spnlTimes.Children.Remove((StackPanel)(sender as Button).Parent);
+        }
+    }    
 }

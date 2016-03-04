@@ -1,6 +1,6 @@
-﻿using MedicineClock2._0.Resources;
+﻿using MedicineClock.Resources;
 
-namespace MedicineClock2._0
+namespace MedicineClock
 {
     /// <summary>
     /// Provides access to string resources.

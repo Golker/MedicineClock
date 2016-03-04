@@ -6,9 +6,9 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MedicineClock2._0.Resources;
+using MedicineClock.Resources;
 
-namespace MedicineClock2._0
+namespace MedicineClock
 {
     public partial class App : Application
     {
