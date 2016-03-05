@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
 using Microsoft.Phone.Scheduler;
 using System.Windows.Media;
 
@@ -21,10 +18,10 @@ namespace MedicineClock
             InitializeComponent();
             btnSave.IsEnabled = false;
 
-            lpkrRecurrence.ItemsSource = SubItems();
+            lpkrRecurrence.ItemsSource = RecurrenceSubItems();
         }
 
-        private IEnumerable<string> SubItems()
+        private IEnumerable<string> RecurrenceSubItems()
         {
             yield return "Once";
             yield return "Daily";
@@ -73,56 +70,48 @@ namespace MedicineClock
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < spnlTimes.Children.Count + 1; i++)
+        {            
+            if (alarmName != null && ScheduledActionService.Find(alarmName) != null)
             {
-                if (alarmName != null && ScheduledActionService.Find(alarmName) != null)
+                // if there's a name already, it means it's a pre-existent alarm being editted
+                // so we delete the old one first
+                ScheduledActionService.Remove(alarmName);
+            }
+
+            // generates a unique name for the new alarm
+            alarmName = Guid.NewGuid().ToString();
+
+            try
+            {
+                // creates the main alarm
+                CreateReminderObject(alarmName, beginDatePicker1, beginTimePicker1);
+
+                // if extra alarm times were set, creates similar alarms for each of those times
+                foreach (UIElement child in spnlTimes.Children)
                 {
-                    // if there's a name already, it means it's a pre-existent alarm being editted
-                    // so we delete the old one first
-                    ScheduledActionService.Remove(alarmName);
+                    StackPanel sp = (StackPanel)child;
+                    DatePicker dp = (DatePicker)sp.Children[1]; // 2nd element, the DatePicker
+                    TimePicker tp = (TimePicker)sp.Children[2]; // 3rd element, the TimePicker
+
+                    string extraAlarmName = Guid.NewGuid().ToString();
+                    CreateReminderObject(extraAlarmName, dp, tp, extra: true);                    
                 }
 
-                // Generate a unique name for the new notification
-                alarmName = System.Guid.NewGuid().ToString();
+                string msg = spnlTimes.Children.Count > 0 ? "The alarms have been saved!" : "The alarm has been saved!";
 
-                DateTime date = (DateTime)beginDatePicker1.Value;
-                DateTime time = (DateTime)beginTimePicker1.Value;
-                DateTime beginTime = date + time.TimeOfDay;
-
-                RecurrenceInterval recurrence = RecurrenceInterval.None;
-                if ((lpkrRecurrence.SelectedItem as string) == "Daily")
-                {
-                    recurrence = RecurrenceInterval.Daily;
-                }
-                else if ((lpkrRecurrence.SelectedItem as string) == "Weekly")
-                {
-                    recurrence = RecurrenceInterval.Weekly;
-                }
-                else if ((lpkrRecurrence.SelectedItem as string) == "Monthly")
-                {
-                    recurrence = RecurrenceInterval.Monthly;
-                }
-
-                Reminder reminder = new Reminder(alarmName);
-                reminder.Title = tbxName.Text;
-                reminder.Content = tbxDetails.Text;
-                reminder.BeginTime = beginTime;
-                reminder.RecurrenceType = recurrence;
-
-                try
-                {
-                    ScheduledActionService.Add(reminder);
-
-                    MessageBoxResult result = MessageBox.Show("The alarm has been saved!");
-                    NavigationService.Navigate(new Uri("/AlarmList.xaml", UriKind.Relative));
-                }
-                catch (Exception)
-                {
-                    MessageBoxResult result = MessageBox.Show("The alarm could not be created, " +
-                        "please check if the info is correct.\nTip: The start date and time " +
-                        "can't be earlier than the current time.\n");
-                }
+                MessageBoxResult result = MessageBox.Show(msg);
+                NavigationService.Navigate(new Uri("/AlarmList.xaml", UriKind.Relative));
+            }
+            catch(Exception)
+            {
+                MessageBox.Show("One or more alarms could not be saved, " +
+                    "please check if the info is correct.\n\n" + 
+                    "If you're adding more than one alarm time for this medicine, " + 
+                    "be aware that some of them might have been created before the issue was detected, so please check " + 
+                    "it first to avoid duplicates. You can always create new alarms from an existing one, so don't worry " +
+                    "about losing data.\n\n" + 
+                    "Tip: The start date and time can't be earlier than the current time.\n",
+                    "Error!", MessageBoxButton.OK);
             }
         }
 
@@ -164,7 +153,42 @@ namespace MedicineClock
 
         private void btnDeleteExtraTime_Click(object sender, RoutedEventArgs e)
         {
-            spnlTimes.Children.Remove((StackPanel)(sender as Button).Parent);
+            StackPanel sp = (StackPanel)(sender as Button).Parent;
+            spnlTimes.Children.Remove(sp);
+        }
+
+        private void CreateReminderObject(string internalNameOrGuid, DatePicker datePicker, TimePicker timePicker, bool extra=false)
+        {
+            /// The 'extra' parameter indicates whether this is an additional alarm time or the main one
+            
+            DateTime date = (DateTime)datePicker.Value;
+            DateTime time = (DateTime)timePicker.Value;
+            DateTime beginTime = date + time.TimeOfDay;
+
+            RecurrenceInterval recurrence = RecurrenceInterval.None;
+            if ((lpkrRecurrence.SelectedItem as string) == "Daily")
+            {
+                recurrence = RecurrenceInterval.Daily;
+            }
+            else if ((lpkrRecurrence.SelectedItem as string) == "Weekly")
+            {
+                recurrence = RecurrenceInterval.Weekly;
+            }
+            else if ((lpkrRecurrence.SelectedItem as string) == "Monthly")
+            {
+                recurrence = RecurrenceInterval.Monthly;
+            }
+
+            // if it's an extra alarm time, add the hour to its name for ease of identification
+            string title = !extra ? tbxName.Text : tbxName.Text + " [" + time.Hour.ToString() + "h]";
+
+            Reminder reminder = new Reminder(internalNameOrGuid);
+            reminder.Title = title;
+            reminder.Content = tbxDetails.Text;
+            reminder.BeginTime = beginTime;
+            reminder.RecurrenceType = recurrence;
+            
+            ScheduledActionService.Add(reminder);
         }
     }    
 }

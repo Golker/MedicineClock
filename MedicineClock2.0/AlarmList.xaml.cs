@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Microsoft.Phone.Scheduler;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Media;
 
 namespace MedicineClock
 {
@@ -33,6 +30,11 @@ namespace MedicineClock
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            if (NavigationService.CanGoBack)
+            {
+                NavigationService.RemoveBackEntry();
+            }
+
             selectedAlarmName = string.Empty;
             //Reset the ReminderListBox items when the page is navigated to.
             ResetItemsList();
@@ -64,7 +66,10 @@ namespace MedicineClock
                 // The scheduled action name is stored in the Tag property
                 string name = (string)((Button)sender).Tag;
 
-                ScheduledActionService.Remove(name);
+                if (ScheduledActionService.Find(name) != null)
+                {
+                    ScheduledActionService.Remove(name);
+                }
                 ResetItemsList();
                 MessageBox.Show("Alarm deleted successfully.");
             }            
@@ -81,7 +86,7 @@ namespace MedicineClock
 
         protected override void OnBackKeyPress(CancelEventArgs e)
         {
-            if (NavigationService.BackStack.ElementAt(0).Source.OriginalString.Contains("AlarmList"))
+            if (NavigationService.CanGoBack && NavigationService.BackStack.ElementAt(0).Source.OriginalString.Contains("AlarmList"))
             {
                 NavigationService.RemoveBackEntry();
             }
