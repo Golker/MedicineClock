@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2014/deployment" AppPlatformVersion="8.1">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{1450ab01-7029-4252-a5c9-4fd30ff4c731}" Title="MedicineClock" RuntimeType="Silverlight" Version="2.0.0.0" Genre="apps.normal" Author="Luca B." Description="A reminder app to help you remember to take your medicines!" SDOptOut="false" BackUpOptOut="false" Publisher="LowBudget Development" PublisherID="{19b559d6-6e6a-46ac-9c96-de209fad5ece}">
+  <App xmlns="" ProductID="{1450ab01-7029-4252-a5c9-4fd30ff4c731}" Title="MedicineClock" RuntimeType="Silverlight" Version="2.0.0.0" Genre="apps.normal" Author="Luca B." Description="A reminder app to help you remember to take your medicines!" SDOptOut="false" BackUpOptOut="false" Publisher="" PublisherID="{19b559d6-6e6a-46ac-9c96-de209fad5ece}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />

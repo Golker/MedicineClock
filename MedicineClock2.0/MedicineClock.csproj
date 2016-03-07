@@ -19,7 +19,7 @@
     </SupportedCultures>
     <XapOutputs>true</XapOutputs>
     <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
-    <XapFilename>MedicineClock_Debug_AnyCPU.xap</XapFilename>
+    <XapFilename>MedicineClock_AnyCPU.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
     <SilverlightAppEntry>MedicineClock.App</SilverlightAppEntry>
     <ValidateXaml>true</ValidateXaml>
