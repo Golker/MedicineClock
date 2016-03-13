@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="58415DE9DD5E3.MedicineClock" Publisher="CN=Luca" Version="2.0.0.0" />
+  <Identity Name="58415DE9DD5E3.MedicineClock" Publisher="CN=15991499-BC8A-4ABF-B46A-9AA656127DB2" Version="2.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="1450ab01-7029-4252-a5c9-4fd30ff4c731" PhonePublisherId="19b559d6-6e6a-46ac-9c96-de209fad5ece" />
   <Properties>
     <DisplayName>MedicineClock</DisplayName>
